@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bored Activity Finder</title>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.6/Sortable.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #6e8efb, #a777e3);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(90deg, #5e72e4, #825ee4);
+            color: white;
+            padding: 25px 0;
+            text-align: center;
+            position: relative;
+        }
+        
+        .logo {
+            position: absolute;
+            top: 20px;
+            left: 30px;
+            font-size: 2rem;
+            background: white;
+            color: #5e72e4;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .controls {
+            padding: 30px;
+            background: #f8f9fe;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 25px;
+            justify-content: center;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+        
+        .filter-section {
+            display: flex;
+            flex-direction: column;
+            min-width: 250px;
+            flex-grow: 1;
+            max-width: 350px;
+        }
+        
+        label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #525f7f;
+            font-size: 1.1rem;
+        }
+        
+        select, .slider-container, .number-input {
+            width: 100%;
+        }
+        
+        select {
+            padding: 12px 15px;
+            border: 2px solid #dce1e9;
+            border-radius: 10px;
+            font-size: 1rem;
+            background: white;
+            transition: all 0.3s;
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23525f7f' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 15px center;
+            background-size: 16px;
+        }
+        
+        select:focus {
+            border-color: #5e72e4;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(94, 114, 228, 0.2);
+        }
+        
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .slider {
+            flex: 1;
+            -webkit-appearance: none;
+            height: 10px;
+            border-radius: 5px;
+            background: linear-gradient(90deg, #5e72e4, #825ee4);
+            outline: none;
+        }
+        
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: white;
+            border: 2px solid #5e72e4;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+        }
+        
+        .number-input {
+            padding: 12px 15px;
+            border: 2px solid #dce1e9;
+            border-radius: 10px;
+            font-size: 1rem;
+            width: 80px;
+            text-align: center;
+        }
+        
+        .number-input:focus {
+            border-color: #5e72e4;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(94, 114, 228, 0.2);
+        }
+        
+        .btn-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        .btn {
+            background: linear-gradient(90deg, #5e72e4, #825ee4);
+            color: white;
+            border: none;
+            padding: 14px 40px;
+            font-size: 1.2rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            box-shadow: 0 4px 10px rgba(94, 114, 228, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(94, 114, 228, 0.5);
+        }
+        
+        .btn:active {
+            transform: translateY(1px);
+        }
+        
+        .btn::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateX(-100%);
+            transition: transform 0.3s;
+        }
+        
+        .btn:hover::after {
+            transform: translateX(0);
+        }
+        
+        .results {
+            padding: 30px;
+            min-height: 400px;
+        }
+
+        .initial-message {
+            text-align: center;
+            font-size: 1.3rem;
+            color: #5e72e4;
+            padding: 50px 0;
+        }
+        
+        .loading {
+            text-align: center;
+            font-size: 1.5rem;
+            color: #5e72e4;
+            padding: 50px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(94, 114, 228, 0.2);
+            border-top: 5px solid #5e72e4;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .error {
+            background: #ffeded;
+            border: 1px solid #ffcccc;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            color: #ff5252;
+            font-family: monospace;
+            white-space: pre-wrap;
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+        
+        .error-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+        
+        .error-url {
+            background: #fff5f5;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            overflow-x: auto;
+        }
+        
+        .error-solution {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #ffcccc;
+            font-family: inherit;
+        }
+        
+        .cards-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            position: relative;
+            cursor: grab;
+        }
+
+        .card:active {
+            cursor: grabbing;
+        }
+        
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
+        }
+        
+        .card-header {
+            padding: 18px 20px;
+            color: white;
+            font-weight: 600;
+            font-size: 1.2rem;
+            position: relative;
+        }
+
+        .card-close-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            right: 15px;
+            background: transparent;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            font-size: 20px;
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .card-close-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .card-body {
+            padding: 20px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .activity-name {
+            font-size: 1.4rem;
+            margin-bottom: 15px;
+            color: #32325d;
+            font-weight: 700;
+        }
+        
+        .activity-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: auto;
+        }
+        
+        .detail-item {
+            display: flex;
+            align-items: center;
+            font-size: 0.95rem;
+            color: #525f7f;
+        }
+        
+        .detail-label {
+            font-weight: 600;
+            margin-right: 8px;
+        }
+        
+        .no-results {
+            text-align: center;
+            padding: 40px;
+            font-size: 1.3rem;
+            color: #5e72e4;
+            grid-column: 1 / -1;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 20px;
+            background: #f8f9fe;
+            color: #8898aa;
+            font-size: 0.9rem;
+            border-top: 1px solid #e9ecef;
+        }
+        
+        .cors-info {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            color: #1976d2;
+            font-size: 0.9rem;
+        }
+
+        .sortable-ghost {
+            opacity: 0.4;
+            background: #c8ebfb;
+            border: 1px dashed #5e72e4;
+        }
+        
+        @media (max-width: 768px) {
+            .form-group {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            .logo {
+                position: static;
+                margin: 0 auto 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">🎯</div>
+            <h1>Bored Activity Finder</h1>
+            <p class="subtitle">Discover fun activities to beat boredom. Filter by type and participants!</p>
+        </header>
+        
+        <div class="controls">
+            <div class="form-group">
+                <div class="filter-section">
+                    <label for="activity-type">Activity Type</label>
+                    <select id="activity-type">
+                        <option value="">Any Type</option>
+                        <option value="education">Education</option>
+                        <option value="recreational">Recreational</option>
+                        <option value="social">Social</option>
+                        <option value="charity">Charity</option>
+                        <option value="cooking">Cooking</option>
+                        <option value="relaxation">Relaxation</option>
+                        <option value="busywork">Busywork</option>
+                    </select>
+                </div>
+                
+                <div class="filter-section">
+                    <label for="participants-slider">Number of Participants</label>
+                    <div class="slider-container">
+                        <input type="range" min="1" max="8" value="1" class="slider" id="participants-slider">
+                        <input type="number" min="1" max="8" value="1" class="number-input" id="participants-input">
+                    </div>
+                </div>
+
+                <div class="filter-section">
+                    <label for="cors-proxy">CORS Proxy Server</label>
+                    <select id="cors-proxy">
+                        <!-- Options populated by JS -->
+                    </select>
+                </div>
+            </div>
+            
+            <div class="btn-container">
+                <button class="btn" id="find-activities">Find Activities</button>
+            </div>
+        </div>
+        
+        <div class="results">
+            <div id="results-container">
+                <!-- Initial message, no spinner -->
+                <div class="initial-message">
+                    Select your preferences and click "Find Activities" to get started!
+                </div>
+            </div>
+        </div>
+        
+        <div class="cors-info">
+            <!-- Text updated by JS -->
+        </div>
+        
+        <footer>
+            <p>Powered by Bored API • All activities are randomly generated</p>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // DOM Elements
+            const typeSelect = document.getElementById('activity-type');
+            const slider = document.getElementById('participants-slider');
+            const input = document.getElementById('participants-input');
+            const findBtn = document.getElementById('find-activities');
+            const resultsContainer = document.getElementById('results-container');
+            const corsProxySelect = document.getElementById('cors-proxy');
+            const corsInfoDiv = document.querySelector('.cors-info');
+
+            // CORS Proxy Configuration
+            const corsProxies = [
+                { name: "AllOrigins (Default)", url: "https://api.allorigins.win/raw?url=", needsEncoding: true },
+                { name: "ThingProxy", url: "https://thingproxy.freeboard.io/fetch/", needsEncoding: false },
+                { name: "cors.eu.org", url: "https://cors.eu.org/", needsEncoding: false },
+                { name: "CodeTabs API Proxy", url: "https://api.codetabs.com/v1/proxy/?quest=", needsEncoding: false }
+            ];
+
+            corsProxies.forEach(proxy => {
+                const option = document.createElement('option');
+                option.value = proxy.url;
+                option.textContent = proxy.name;
+                option.dataset.needsEncoding = proxy.needsEncoding;
+                corsProxySelect.appendChild(option);
+            });
+
+            if (corsInfoDiv) {
+                corsInfoDiv.innerHTML = `
+                    <strong>Note:</strong> This app uses a CORS proxy to bypass browser restrictions. 
+                    If you encounter network errors, try selecting a different proxy from the dropdown, 
+                    as the selected one might be temporarily unavailable. 
+                    You can also try again later or run this app from a web server.
+                `;
+            }
+            
+            // Sync slider and input
+            slider.addEventListener('input', function() {
+                input.value = slider.value;
+            });
+            
+            input.addEventListener('input', function() {
+                let value = parseInt(input.value);
+                if (isNaN(value) || value < 1) value = 1;
+                else if (value > 8) value = 8;
+                slider.value = value;
+                input.value = value;
+            });
+            
+            // Activity type colors
+            const typeColors = {
+                education: '#4e73df', recreational: '#1cc88a', social: '#36b9cc',
+                charity: '#f6c23e', cooking: '#e74a3b', relaxation: '#6f42c1',
+                busywork: '#858796', default: '#5a5c69'
+            };
+            
+            // Button click handler
+            findBtn.addEventListener('click', function() {
+                resultsContainer.innerHTML = `
+                    <div class="loading">
+                        <div class="loading-spinner"></div>
+                        <div>Searching for activities...</div>
+                    </div>
+                `;
+                
+                const type = typeSelect.value;
+                const participants = input.value;
+                
+                let apiUrl = 'https://bored-api.appbrewery.com/filter?';
+                if (type) apiUrl += `type=${type}&`;
+                apiUrl += `participants=${participants}`;
+                
+                const selectedOption = corsProxySelect.options[corsProxySelect.selectedIndex];
+                const proxyBaseUrl = selectedOption.value;
+                const needsEncoding = selectedOption.dataset.needsEncoding === 'true';
+                
+                const urlToProxy = needsEncoding ? encodeURIComponent(apiUrl) : apiUrl;
+                const finalUrl = proxyBaseUrl + urlToProxy;
+                
+                fetch(finalUrl)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! Status: ${response.status}`);
+                        }
+                        return response.json();
+                    })
+                    .then(responseData => {
+                        if (responseData && typeof responseData === 'object' && responseData.error) {
+                            if (responseData.error === "Activities not found for the given filter.") {
+                                resultsContainer.innerHTML = '<div class="no-results">No activities found for your criteria. Please try different filters.</div>';
+                            } else {
+                                displayError({ message: `API Error: ${responseData.error}` }, apiUrl, finalUrl);
+                            }
+                            return;
+                        }
+
+                        if (!Array.isArray(responseData)) {
+                            console.warn("API response was not an array and not a recognized error object:", responseData);
+                            if (typeof responseData === 'object' && responseData !== null && responseData.activity) {
+                                 displayActivities([responseData]); // Wrap single activity
+                            } else {
+                                 resultsContainer.innerHTML = '<div class="no-results">Received unexpected data format from the API.</div>';
+                            }
+                            return;
+                        }
+                        displayActivities(responseData);
+                    })
+                    .catch(error => {
+                        displayError(error, apiUrl, finalUrl);
+                    });
+            });
+            
+            // Display activities function
+            function displayActivities(activities) {
+                if (!activities || activities.length === 0) {
+                    resultsContainer.innerHTML = '<div class="no-results">No activities found. Try changing your filters.</div>';
+                    return;
+                }
+                
+                let cardsHTML = '<div class="cards-container">'; // This is the container for SortableJS
+                activities.forEach(activity => {
+                    const color = typeColors[activity.type] || typeColors.default;
+                    cardsHTML += `
+                        <div class="card">
+                            <div class="card-header" style="background: ${color}">
+                                ${activity.type.charAt(0).toUpperCase() + activity.type.slice(1)}
+                                <button class="card-close-btn" title="Close activity">&times;</button>
+                            </div>
+                            <div class="card-body">
+                                <div class="activity-name">${activity.activity}</div>
+                                <div class="activity-details">
+                                    <div class="detail-item"><span class="detail-label">Participants:</span><span>${activity.participants}</span></div>
+                                    <div class="detail-item"><span class="detail-label">Price:</span><span>${formatPrice(activity.price)}</span></div>
+                                    <div class="detail-item"><span class="detail-label">Accessibility:</span><span>${formatAccessibility(activity.accessibility)}</span></div>
+                                    <div class="detail-item"><span class="detail-label">Duration:</span><span>${activity.duration || 'N/A'}</span></div>
+                                </div>
+                                ${activity.link ? `<a href="${activity.link}" target="_blank" style="display: block; margin-top: 15px; color: ${color}; font-weight: 600;">Learn More</a>` : ''}
+                            </div>
+                        </div>
+                    `;
+                });
+                cardsHTML += '</div>';
+                resultsContainer.innerHTML = cardsHTML;
+
+                // Add event listeners to close buttons
+                document.querySelectorAll('.card-close-btn').forEach(button => {
+                    button.addEventListener('click', function() {
+                        this.closest('.card').remove();
+                        const cardsContainerEl = resultsContainer.querySelector('.cards-container');
+                        if (cardsContainerEl && cardsContainerEl.children.length === 0) {
+                            resultsContainer.innerHTML = '<div class="no-results">All activities closed. Try a new search!</div>';
+                        }
+                    });
+                });
+
+                // Initialize SortableJS on the cards container
+                const cardsContainerElement = resultsContainer.querySelector('.cards-container');
+                if (cardsContainerElement) {
+                    new Sortable(cardsContainerElement, {
+                        animation: 150, // ms, animation speed moving items when sorting, `0` — without animation
+                        ghostClass: 'sortable-ghost', // Class name for the drop placeholder
+                        // chosenClass: 'sortable-chosen', // Class name for the chosen item
+                        // dragClass: 'sortable-drag', // Class name for the dragging item
+                    });
+                }
+            }
+            
+            // Display error function
+            function displayError(error, apiUrl, proxiedUrl) { // Renamed finalUrl to proxiedUrl for clarity
+                resultsContainer.innerHTML = `
+                    <div class="error">
+                        <div class="error-title">Error: ${error.message}</div>
+                        <div>Original API URL:</div>
+                        <div class="error-url">${apiUrl}</div>
+                        <div>Full Proxied URL used:</div>
+                        <div class="error-url">${proxiedUrl}</div>
+                        <div class="error-solution">
+                            <strong>Possible solutions:</strong>
+                            <ul>
+                                <li>Check your internet connection.</li>
+                                <li>The selected CORS proxy service might be temporarily unavailable. Try another proxy from the dropdown or try again later.</li>
+                                <li>The Bored API itself might be down or experiencing issues.</li>
+                                <li>If opening this as a local file, some proxies might not work as expected. Try running from a web server.</li>
+                            </ul>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // Helper functions
+            function formatPrice(price) {
+                if (price === 0) return 'Free';
+                if (price <= 0.3) return 'Low';
+                if (price <= 0.6) return 'Medium';
+                return 'High';
+            }
+            
+            function formatAccessibility(accessibility) {
+                if (accessibility <= 0.25) return 'Very Easy';
+                if (accessibility <= 0.5) return 'Easy';
+                if (accessibility <= 0.75) return 'Medium';
+                return 'Challenging';
+            }
+        });
+    </script>
+</body>
+</html>
